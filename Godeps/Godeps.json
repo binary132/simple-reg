@@ -1,0 +1,14 @@
+{
+	"ImportPath": "github.com/synapse-garden/simple-reg",
+	"GoVersion": "go1.5.1",
+	"Deps": [
+		{
+			"ImportPath": "github.com/mailgun/mailgun-go",
+			"Rev": "56726ce4cd9da46e8d8b10a7257d12f69752b67d"
+		},
+		{
+			"ImportPath": "github.com/mbanzon/simplehttp",
+			"Rev": "04c542e7ac706a25820090f274ea6a4f39a63326"
+		}
+	]
+}
