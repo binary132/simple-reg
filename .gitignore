@@ -24,3 +24,4 @@ _testmain.go
 *.prof
 
 *.sw[nop]
+config.toml
