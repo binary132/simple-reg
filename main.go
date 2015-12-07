@@ -10,6 +10,7 @@ import (
 	"github.com/BurntSushi/toml"
 	htr "github.com/julienschmidt/httprouter"
 	"github.com/mailgun/mailgun-go"
+	"github.com/rs/cors"
 )
 
 var (
@@ -21,18 +22,20 @@ var (
 	sendTo   = flag.String("send-to", "", "The email address to send to")
 	sender   = flag.String("sender", "", "The email address to send from")
 	subject  = flag.String("subject", "Registration", "Subject")
+	origin   = flag.String("origin", "", "Allow CORS origin")
 
 	port = flag.Int("port", 24000, "The port to listen on")
 )
 
 type Config struct {
-	Domain  string `toml:"domain"`
-	APIKey  string `toml:"api-key"`
-	PubKey  string `toml:"pub-key"`
-	SendTo  string `toml:"send-to"`
-	Sender  string `toml:"sender"`
-	Subject string `toml:"subject"`
-	Port    int    `toml:"port"`
+	Domain  string   `toml:"domain"`
+	APIKey  string   `toml:"api-key"`
+	PubKey  string   `toml:"pub-key"`
+	SendTo  string   `toml:"send-to"`
+	Sender  string   `toml:"sender"`
+	Subject string   `toml:"subject"`
+	Origins []string `toml:"origins"`
+	Port    int      `toml:"port"`
 }
 
 func main() {
@@ -53,9 +56,14 @@ func main() {
 	)
 	r := htr.New()
 	r.POST("/register/:email", wrap(m, "email"))
+	rCORS := cors.New(cors.Options{
+		AllowedOrigins:   conf.Origins,
+		AllowedMethods:   []string{"POST"},
+		AllowCredentials: true,
+	}).Handler(r)
 
 	log.Printf("Simple Reg listening on port :%d\n", conf.Port)
-	panic(http.ListenAndServe(":"+strconv.Itoa(conf.Port), r))
+	panic(http.ListenAndServe(":"+strconv.Itoa(conf.Port), rCORS))
 }
 
 func wrap(f func(string) error, key string) htr.Handle {
@@ -94,6 +102,12 @@ func getConfig(which string) (*Config, error) {
 	}
 	if *port != 0 {
 		conf.Port = *port
+	}
+	switch {
+	case *origin == "" && conf.Origins == nil:
+		conf.Origins = []string{"*"}
+	case *origin != "":
+		conf.Origins = []string{*origin}
 	}
 
 	return &conf, nil
