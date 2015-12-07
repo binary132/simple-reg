@@ -19,6 +19,18 @@
 		{
 			"ImportPath": "github.com/mbanzon/simplehttp",
 			"Rev": "04c542e7ac706a25820090f274ea6a4f39a63326"
+		},
+		{
+			"ImportPath": "github.com/rs/cors",
+			"Rev": "ceb1fbf238d7711a11a86a2622d0b85305348aeb"
+		},
+		{
+			"ImportPath": "github.com/rs/xhandler",
+			"Rev": "768e938dd1b2901a776cf66e27a9737d64f9e15f"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "d5cd7348bfebdf7dbb6dbb18fa488525f9024293"
 		}
 	]
 }
