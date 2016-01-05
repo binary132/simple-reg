@@ -23,6 +23,8 @@ var (
 	sender   = flag.String("sender", "", "The email address to send from")
 	subject  = flag.String("subject", "Registration", "Subject")
 	origin   = flag.String("origin", "", "Allow CORS origin")
+	cert     = flag.String("cert", "cert.pem", "SSL certificate")
+	key      = flag.String("key", "key.pem", "SSL key")
 
 	port = flag.Int("port", 24000, "The port to listen on")
 )
@@ -36,6 +38,8 @@ type Config struct {
 	Subject string   `toml:"subject"`
 	Origins []string `toml:"origins"`
 	Port    int      `toml:"port"`
+	Cert    string   `toml:"cert"`
+	Key     string   `toml:"key"`
 }
 
 func main() {
@@ -54,6 +58,7 @@ func main() {
 		conf.SendTo,
 		conf.Sender,
 	)
+
 	r := htr.New()
 	r.POST("/register/:email", wrap(m, "email"))
 	rCORS := cors.New(cors.Options{
@@ -63,7 +68,10 @@ func main() {
 	}).Handler(r)
 
 	log.Printf("Simple Reg listening on port :%d\n", conf.Port)
-	panic(http.ListenAndServe(":"+strconv.Itoa(conf.Port), rCORS))
+	panic(http.ListenAndServeTLS(":"+strconv.Itoa(conf.Port),
+		conf.Cert, conf.Key,
+		rCORS,
+	))
 }
 
 func wrap(f func(string) error, key string) htr.Handle {
@@ -92,6 +100,8 @@ func getConfig(which string) (*Config, error) {
 		"pub-key": {f: *pbAPIKey, cf: &(conf.PubKey)},
 		"send-to": {f: *sendTo, cf: &(conf.SendTo)},
 		"sender":  {f: *sender, cf: &(conf.Sender)},
+		"cert":    {f: *cert, cf: &(conf.Cert)},
+		"key":     {f: *key, cf: &(conf.Key)},
 	} {
 		switch {
 		case v.f == "" && *(v.cf) == "":
